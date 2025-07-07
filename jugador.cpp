@@ -20,7 +20,7 @@ Jugador::Jugador(QObject *parent)
     frameDerecha   = spriteSheet.copy(  0,  0, 341, 512);
     frameIzquierda = spriteSheet.copy( 682,  512, 341, 512);
 
-    setPixmap(frameDerecha.scaled(48, 48));
+    setPixmap(frameDerecha.scaled(120, 120));
     setPos(100, 300);
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
@@ -33,7 +33,7 @@ Jugador::Jugador(QObject *parent)
 void Jugador::moverIzquierda() {
     setX(x() - 10);
     ultimaDireccion = Izquierda;
-    setPixmap(frameIzquierda.scaled(48, 48));
+    setPixmap(frameIzquierda.scaled(120, 120));
     movimientoActivo = true;
 
 }
@@ -41,7 +41,7 @@ void Jugador::moverIzquierda() {
 void Jugador::moverDerecha() {
     setX(x() + 10);
     ultimaDireccion = Derecha;
-    setPixmap(frameDerecha.scaled(48, 48));
+    setPixmap(frameDerecha.scaled(120, 120));
     movimientoActivo = true;
 
 }
@@ -82,11 +82,11 @@ void Jugador::keyPressEvent(QKeyEvent *event) {
         break;
     case Qt::Key_Up:
         ultimaDireccion = Arriba;
-        setPixmap(frameArriba.scaled(48, 48));
+        setPixmap(frameArriba.scaled(120, 120));
         break;
     case Qt::Key_Down:
         ultimaDireccion = Abajo;
-        setPixmap(frameAbajo.scaled(48, 48));
+        setPixmap(frameAbajo.scaled(120, 120));
         break;
     case Qt::Key_Space:
         saltar();
