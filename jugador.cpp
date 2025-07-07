@@ -1,39 +1,57 @@
 #include "Jugador.h"
 #include <QPixmap>
 #include <QGraphicsScene>
+#include <QKeyEvent>
+
+#include "../fisicas/SaltoParabolico.h"
+
+
+
 
 Jugador::Jugador(QObject *parent)
-    : QObject(parent), vidas(3), energia(100), golpesAcertados(0),
-    velocidad(5.0f), enSalto(false) {
+    : QObject(parent), vidas(3), energia(100), golpesAcertados(0), enSalto(false), ultimaDireccion(Abajo) {
 
     QPixmap spriteSheet(":/images/goku.png");
+    frameDerecha = spriteSheet.copy(0, 0, 64, 64);
+    frameIzquierda = spriteSheet.copy(0, 64, 64, 64);
 
-    // Ejemplo: si cada cuadro mide 16x16 píxeles
-    frameAbajo     = spriteSheet.copy(  0,  0, 329, 493);
-    frameIzquierda = spriteSheet.copy( 493,  0, 329, 493);
-    frameDerecha   = spriteSheet.copy( 986,  0, 329, 493);
-    frameArriba    = spriteSheet.copy( 1479,  350, 329, 493);
 
-    // Mostrar uno por defecto
-    setPixmap(frameAbajo.scaled(48, 48));
+    // Coordenadas de ejemplo: ajustalas según tu sprite
+    frameDerecha   = spriteSheet.copy(  0,  0, 341, 512);
+    frameIzquierda = spriteSheet.copy( 682,  512, 341, 512);
 
-    //setPixmap(QPixmap(":/images/goku.png").scaled(48, 48));
+    setPixmap(frameDerecha.scaled(48, 48));
     setPos(100, 300);
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
+    // Inicializar física de salto
+    //salto = new SaltoParabolico(25.2f, 9.8f, 1.2f);  // v0, g, duración máxima
+    salto = new SaltoParabolico(40.0f, 40.0f, 0.5f);  // v0, g, duración
+
 }
 
-
 void Jugador::moverIzquierda() {
-    setX(x() - velocidad);
+    setX(x() - 10);
+    ultimaDireccion = Izquierda;
+    setPixmap(frameIzquierda.scaled(48, 48));
+    movimientoActivo = true;
+
 }
 
 void Jugador::moverDerecha() {
-    setX(x() + velocidad);
+    setX(x() + 10);
+    ultimaDireccion = Derecha;
+    setPixmap(frameDerecha.scaled(48, 48));
+    movimientoActivo = true;
+
 }
 
 void Jugador::saltar() {
-    // Se implementará con física de salto luego
+    movimientoActivo = false;
+    if (!enSalto) {
+        enSalto = true;
+        salto->aplicar(this);  // se libera automáticamente al aterrizar
+    }
 }
 
 void Jugador::atacar() {
@@ -51,3 +69,54 @@ void Jugador::reiniciarEstado() {
     golpesAcertados = 0;
     setPos(100, 300);
 }
+
+void Jugador::keyPressEvent(QKeyEvent *event) {
+    qDebug() << "Jugador recibió tecla:" << event->key();  // ← DEBUG CRÍTICO
+    //if (event->isAutoRepeat()) return;  // Ignora repeticiones
+    switch (event->key()) {
+    case Qt::Key_Left:
+        moverIzquierda();
+        break;
+    case Qt::Key_Right:
+        moverDerecha();
+        break;
+    case Qt::Key_Up:
+        ultimaDireccion = Arriba;
+        setPixmap(frameArriba.scaled(48, 48));
+        break;
+    case Qt::Key_Down:
+        ultimaDireccion = Abajo;
+        setPixmap(frameAbajo.scaled(48, 48));
+        break;
+    case Qt::Key_Space:
+        saltar();
+        break;
+    case Qt::Key_X:
+        atacar();
+        break;
+    }
+}
+
+void Jugador::setEnSalto(bool valor) {
+    enSalto = valor;
+}
+
+/*float Jugador::getVelocidad() const {
+    return velocidad;
+}*/
+
+/*void Jugador::keyReleaseEvent(QKeyEvent *event) {
+    if (event->isAutoRepeat()) return;  // Ignora repeticiones
+    switch (event->key()) {
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+        movimientoActivo = false;
+        break;
+    }
+}*/
+
+
+
+
+
+

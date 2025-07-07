@@ -4,31 +4,53 @@
 #include <QObject>
 #include <QGraphicsPixmapItem>
 #include <QPointF>
+#include <QPixmap>
+#include "../fisicas/SaltoParabolico.h"
+
+
+class SaltoParabolico;
 
 class Jugador : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
+
     explicit Jugador(QObject *parent = nullptr);
 
+    void keyPressEvent(QKeyEvent *event);
     void moverIzquierda();
     void moverDerecha();
     void saltar();
     void atacar();
     void recibirDanio(int cantidad);
     void reiniciarEstado();
+    //ESTABA BIEN SIN FISICAS
+    bool movimientoActivo;
+    void setEnSalto(bool estado);
+    //float getVelocidad() const;
+
+    enum Direccion { Abajo, Izquierda, Derecha, Arriba };
+    Direccion ultimaDireccion;
+
+    //void keyReleaseEvent(QKeyEvent *event);
+
+
 
 private:
     int vidas;
     int energia;
     int golpesAcertados;
     QPointF posicion;
-    float velocidad;
+    //float velocidad;
     bool enSalto;
+    // Sprites
     QPixmap frameArriba;
     QPixmap frameAbajo;
     QPixmap frameIzquierda;
     QPixmap frameDerecha;
 
+
+    SaltoParabolico *salto;
 };
 
 #endif // JUGADOR_H
+
