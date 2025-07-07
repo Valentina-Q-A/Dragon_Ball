@@ -14,9 +14,15 @@ Nivel1::Nivel1(QGraphicsView* vista)
     vista->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vista->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    // Fondo del nivel
+    QPixmap fondo(":/images/fondo_nivel1.png");
+    QGraphicsPixmapItem* fondoItem = escena->addPixmap(fondo.scaled(800, 600));
+    fondoItem->setZValue(-1);  // Asegura que esté detrás de todo
+
+
     // Jugador
     jugador = new Jugador();
-    jugador->setPos(100, 300);
+    jugador->setPos(100, 400);
     escena->addItem(jugador);
 
     // Enemigo invisible
