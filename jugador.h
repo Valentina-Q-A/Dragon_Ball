@@ -19,6 +19,8 @@ public:
     void keyPressEvent(QKeyEvent *event);
     void moverIzquierda();
     void moverDerecha();
+    void moverArriba();
+    void moverAbajo();
     void saltar();
     void atacar();
     void recibirDanio(int cantidad);
@@ -47,6 +49,13 @@ private:
     QPixmap frameAbajo;
     QPixmap frameIzquierda;
     QPixmap frameDerecha;
+    QPixmap frameAtaqueDerecha;
+    QPixmap frameAtaqueIzquierda;
+    QPixmap frameAtaqueAbajo;
+    QPixmap frameRecibirDanio;
+
+    QTimer* timerAtaque;
+    QPixmap frameAtaque;
 
 
     SaltoParabolico *salto;

@@ -2,6 +2,7 @@
 #include <QPixmap>
 #include <QGraphicsScene>
 #include <QKeyEvent>
+#include "hombreinvisible.h"
 
 #include "../fisicas/SaltoParabolico.h"
 
@@ -12,13 +13,16 @@ Jugador::Jugador(QObject *parent)
     : QObject(parent), vidas(3), energia(100), golpesAcertados(0), enSalto(false), ultimaDireccion(Abajo) {
 
     QPixmap spriteSheet(":/images/goku.png");
-    frameDerecha = spriteSheet.copy(0, 0, 64, 64);
-    frameIzquierda = spriteSheet.copy(0, 64, 64, 64);
-
 
     // Coordenadas de ejemplo: ajustalas según tu sprite
-    frameDerecha   = spriteSheet.copy(  0,  0, 341, 512);
-    frameIzquierda = spriteSheet.copy( 682,  512, 341, 512);
+    frameDerecha   = spriteSheet.copy(  345,  0, 345, 547);
+    frameIzquierda = spriteSheet.copy( 345,  547, 345, 547);
+    frameArriba   = spriteSheet.copy(  345,  1094, 345, 547);
+    frameAbajo   = spriteSheet.copy(  0,  0, 380, 547);
+    frameAtaqueDerecha   = spriteSheet.copy(  0,  0, 380, 547);
+    frameAtaqueIzquierda   = spriteSheet.copy(  0,  0, 380, 547);
+    frameAtaqueAbajo   = spriteSheet.copy(  0,  0, 380, 547);
+    frameRecibirDanio = spriteSheet.copy(  0,  0, 380, 547);
 
     setPixmap(frameDerecha.scaled(120, 120));
     setPos(100, 300);
@@ -27,6 +31,14 @@ Jugador::Jugador(QObject *parent)
     // Inicializar física de salto
     //salto = new SaltoParabolico(25.2f, 9.8f, 1.2f);  // v0, g, duración máxima
     salto = new SaltoParabolico(40.0f, 40.0f, 0.5f);  // v0, g, duración
+
+    frameAtaque = QPixmap(":/images/goku_ataque.png"); // ← agregá este sprite a tu proyecto
+    timerAtaque = new QTimer(this);
+    connect(timerAtaque, &QTimer::timeout, [this]() {
+        setPixmap(frameDerecha.scaled(120, 120)); // ← o la última dirección que corresponda
+        timerAtaque->stop();
+    });
+
 
 }
 
@@ -46,6 +58,22 @@ void Jugador::moverDerecha() {
 
 }
 
+void Jugador::moverArriba() {
+    setY(y() - 10);
+    ultimaDireccion = Arriba;
+    setPixmap(frameArriba.scaled(120, 120));
+    movimientoActivo = true;
+
+}
+
+void Jugador::moverAbajo() {
+    setY(y() + 10);
+    ultimaDireccion = Abajo;
+    setPixmap(frameAbajo.scaled(120, 120));
+    movimientoActivo = true;
+
+}
+
 void Jugador::saltar() {
     movimientoActivo = false;
     if (!enSalto) {
@@ -55,8 +83,20 @@ void Jugador::saltar() {
 }
 
 void Jugador::atacar() {
-    // Animación de ataque o efecto de golpe (a implementar)
+    setPixmap(frameAtaque.scaled(120, 120));
+    timerAtaque->start(300);  // Vuelve al sprite normal luego de 300 ms
+
+    // Buscar enemigo en la escena
+    QList<QGraphicsItem*> colisiones = collidingItems();
+    for (QGraphicsItem* item : colisiones) {
+        HombreInvisible* enemigo = dynamic_cast<HombreInvisible*>(item);
+        if (enemigo && enemigo->estaVisible()) {
+            enemigo->setVisible(false);  // Desaparece como si lo golpeara
+            // Podés agregar sonido, partículas, puntos, etc.
+        }
+    }
 }
+
 
 void Jugador::recibirDanio(int cantidad) {
     vidas -= cantidad;
@@ -81,12 +121,10 @@ void Jugador::keyPressEvent(QKeyEvent *event) {
         moverDerecha();
         break;
     case Qt::Key_Up:
-        ultimaDireccion = Arriba;
-        setPixmap(frameArriba.scaled(120, 120));
+        moverArriba();
         break;
     case Qt::Key_Down:
-        ultimaDireccion = Abajo;
-        setPixmap(frameAbajo.scaled(120, 120));
+        moverAbajo();
         break;
     case Qt::Key_Space:
         saltar();
@@ -114,9 +152,3 @@ void Jugador::setEnSalto(bool valor) {
         break;
     }
 }*/
-
-
-
-
-
-

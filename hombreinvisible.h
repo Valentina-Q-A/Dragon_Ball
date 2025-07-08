@@ -3,15 +3,22 @@
 
 #include "enemigo.h"
 #include <QTimer>
-#include <QPainter>
 #include <QObject>
+#include <QPixmap>
 
-class HombreInvisible : public QObject, public Enemigo {
+class HombreInvisible : public Enemigo {
     Q_OBJECT
 
 private:
     bool visible;
     QTimer* temporizadorVisibilidad;
+    QPixmap frameDerecha;
+    QPixmap frameIzquierda;
+
+    //Atributos movimiento libre
+    int direccionX;
+    int direccionY;
+
 
 public:
     HombreInvisible(float x, float y);
@@ -19,11 +26,6 @@ public:
 
     void mover() override;
     void actualizarFisica() override;
-    void dibujar(QPainter* painter) override;
-
-    QRectF boundingRect() const override;
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
-
     void activarVisibilidadTemporal(int milisegundos);
     bool estaVisible() const;
 };
