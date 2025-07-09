@@ -22,7 +22,7 @@ private:
     //HASTA AQUI FUNCIONABA
     Nivel1* nivel1;
     //QTimer* timerMovimiento;  // ← NUEVO
-/*private slots:
+    /*private slots:
     void actualizarMovimiento();*/
 };
 

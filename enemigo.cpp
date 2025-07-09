@@ -1,7 +1,12 @@
 #include "enemigo.h"
+#include <QGraphicsPixmapItem>
+#include <QObject>
 
-Enemigo::Enemigo(float x, float y, Fisica* fisica)
-    : x(x), y(y), vx(0), vy(0), fisica(fisica) {}
+Enemigo::Enemigo(float x, float y, Fisica* fisica, QObject* parent)
+    : QObject(parent), QGraphicsPixmapItem(), x(x), y(y), vx(0), vy(0), fisica(fisica) {
+    setPos(x, y);
+}
+
 
 Enemigo::~Enemigo() {
     delete fisica;

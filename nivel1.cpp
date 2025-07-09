@@ -26,7 +26,7 @@ Nivel1::Nivel1(QGraphicsView* vista)
     escena->addItem(jugador);
 
     // Enemigo invisible
-    enemigo = new HombreInvisible(400, 300);
+    enemigo = new HombreInvisible(500, 400);
     escena->addItem(enemigo);
 
     // Movimiento oscilatorio
