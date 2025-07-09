@@ -53,9 +53,9 @@ private:
     QPixmap frameAtaqueIzquierda;
     QPixmap frameAtaqueAbajo;
     QPixmap frameRecibirDanio;
+    QPixmap frameAtaque;
 
     QTimer* timerAtaque;
-    QPixmap frameAtaque;
 
 
     SaltoParabolico *salto;

@@ -50,8 +50,14 @@ void HombreInvisible::mover() {
     }
 
     // Actualizar posición según dirección
-    x += direccionX * 2;
+    x += direccionX * 2 + vx;
     y += direccionY * 2;
+
+    // Limitar al rango de pantalla (ajustar al tamaño real del sprite)
+    int anchoSprite = 120;
+    int altoSprite = 120;
+    x = qBound(0.0f, x, 800.0f - anchoSprite);
+    y = qBound(350.0f, y, 600.0f - altoSprite);
 
     // Aplicar física adicional
     actualizarFisica();

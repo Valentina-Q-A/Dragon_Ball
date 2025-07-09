@@ -6,7 +6,10 @@
 
 #include "../fisicas/SaltoParabolico.h"
 
+#include "../niveles/nivel1.h"
+#include "poder.h"
 
+extern Nivel1* nivelGlobal; // Si es global, o buscás la escena de otra forma
 
 
 Jugador::Jugador(QObject *parent)
@@ -38,7 +41,6 @@ Jugador::Jugador(QObject *parent)
         setPixmap(frameDerecha.scaled(120, 120)); // ← o la última dirección que corresponda
         timerAtaque->stop();
     });
-
 
 }
 
@@ -83,19 +85,64 @@ void Jugador::saltar() {
 }
 
 void Jugador::atacar() {
-    setPixmap(frameAtaque.scaled(120, 120));
-    timerAtaque->start(300);  // Vuelve al sprite normal luego de 300 ms
+    // 1. Cambiar sprite según dirección
+    switch (ultimaDireccion) {
+    case Derecha:
+        setPixmap(frameAtaqueDerecha.scaled(120, 120));
+        break;
+    case Izquierda:
+        setPixmap(frameAtaqueIzquierda.scaled(120, 120));
+        break;
+    case Abajo:
+        setPixmap(frameAtaqueAbajo.scaled(120, 120));
+        break;
+    case Arriba:
+        setPixmap(frameAtaqueAbajo.scaled(120, 120)); // Reutiliza sprite de abajo
+        break;
+    }
 
-    // Buscar enemigo en la escena
-    QList<QGraphicsItem*> colisiones = collidingItems();
-    for (QGraphicsItem* item : colisiones) {
+    // 2. Volver al sprite normal luego de 300 ms
+    timerAtaque->start(300);
+
+    // 3. Determinar dirección del ataque
+    QPointF origen = this->pos();
+    QPointF destino;
+    HombreInvisible* objetivo = nullptr;
+
+    QList<QGraphicsItem*> items = scene()->items();
+    for (QGraphicsItem* item : items) {
         HombreInvisible* enemigo = dynamic_cast<HombreInvisible*>(item);
         if (enemigo && enemigo->estaVisible()) {
-            enemigo->setVisible(false);  // Desaparece como si lo golpeara
-            // Podés agregar sonido, partículas, puntos, etc.
+            objetivo = enemigo;
+            break;
         }
     }
+
+    if (objetivo) {
+        destino = objetivo->pos(); // Apunta al enemigo si está visible
+    } else {
+        // Si no hay enemigo visible, lanzar en la dirección de Goku
+        float offset = 100.0f;  // Distancia fija
+        switch (ultimaDireccion) {
+        case Derecha:
+            destino = QPointF(origen.x() + offset, origen.y());
+            break;
+        case Izquierda:
+            destino = QPointF(origen.x() - offset, origen.y());
+            break;
+        case Abajo:
+            destino = QPointF(origen.x(), origen.y() + offset);
+            break;
+        case Arriba:
+            destino = QPointF(origen.x(), origen.y() - offset);
+            break;
+        }
+    }
+
+    // 4. Lanzar el poder
+    Poder* poder = new Poder(origen, destino, 10.0f, scene());
 }
+
 
 
 void Jugador::recibirDanio(int cantidad) {
