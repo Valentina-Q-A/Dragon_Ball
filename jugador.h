@@ -33,6 +33,10 @@ public:
     enum Direccion { Abajo, Izquierda, Derecha, Arriba };
     Direccion ultimaDireccion;
 
+    void recibirGolpe();  // nuevo método
+
+
+
     //void keyReleaseEvent(QKeyEvent *event);
 
 
@@ -56,6 +60,7 @@ private:
     QPixmap frameAtaque;
 
     QTimer* timerAtaque;
+    QTimer* timerDanio;
 
 
     SaltoParabolico *salto;

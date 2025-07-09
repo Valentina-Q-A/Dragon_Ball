@@ -42,6 +42,20 @@ Jugador::Jugador(QObject *parent)
         timerAtaque->stop();
     });
 
+    frameRecibirDanio = QPixmap(":/images/goku_danio.png");  // Sprite ya cargado
+    timerDanio = new QTimer(this);
+    connect(timerDanio, &QTimer::timeout, [this]() {
+        // Restaurar sprite según dirección
+        switch (ultimaDireccion) {
+        case Derecha:  setPixmap(frameDerecha.scaled(120, 120)); break;
+        case Izquierda:setPixmap(frameIzquierda.scaled(120, 120)); break;
+        case Abajo:    setPixmap(frameAbajo.scaled(120, 120)); break;
+        case Arriba:   setPixmap(frameArriba.scaled(120, 120)); break;
+        }
+        timerDanio->stop();
+    });
+
+
 }
 
 void Jugador::moverIzquierda() {
@@ -150,6 +164,12 @@ void Jugador::recibirDanio(int cantidad) {
     if (vidas < 0) vidas = 0;
 }
 
+void Jugador::recibirGolpe() {
+    setPixmap(frameRecibirDanio.scaled(120, 120));
+    timerDanio->start(300);  // Volver al sprite normal después
+}
+
+
 void Jugador::reiniciarEstado() {
     vidas = 3;
     energia = 100;
@@ -185,6 +205,8 @@ void Jugador::keyPressEvent(QKeyEvent *event) {
 void Jugador::setEnSalto(bool valor) {
     enSalto = valor;
 }
+
+
 
 /*float Jugador::getVelocidad() const {
     return velocidad;
