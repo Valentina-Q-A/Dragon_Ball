@@ -1,6 +1,8 @@
 #include "hombreinvisible.h"
 #include "../fisicas/movimientooscilatorio.h"
 #include <cstdlib>
+#include "jugador.h"
+#include "personajes/poderenemigo.h"
 
 #include <QGraphicsScene>
 
@@ -28,6 +30,23 @@ HombreInvisible::HombreInvisible(float x, float y)
         visible = false;
         setVisible(false); //oculta sprite
     });
+
+    QTimer* timerAtaque = new QTimer(this);
+    connect(timerAtaque, &QTimer::timeout, [this]() {
+        if (!this->estaVisible()) {
+            QList<QGraphicsItem*> items = scene()->items();
+            for (QGraphicsItem* item : items) {
+                Jugador* jugador = dynamic_cast<Jugador*>(item);
+                if (jugador) {
+                    QPointF origen = this->pos();
+                    QPointF destino = jugador->pos();
+                    auto* poder = new PoderEnemigo(origen, destino, 6.0f, scene(), jugador);
+                    break;
+                }
+            }
+        }
+    });
+    timerAtaque->start(2000);  // Ataca cada 2 segundos si está invisible
 
     setPosicion(x, y);
     setFlag(QGraphicsItem::ItemIsMovable, false);

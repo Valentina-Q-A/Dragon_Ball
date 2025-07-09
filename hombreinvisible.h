@@ -20,6 +20,7 @@ private:
     int direccionY;
 
 
+
 public:
     HombreInvisible(float x, float y);
     ~HombreInvisible();
