@@ -18,6 +18,12 @@ private:
     //Atributos movimiento libre
     int direccionX;
     int direccionY;
+    QGraphicsRectItem* barraEnergia;
+    int energia;
+    int energiaMaxima;
+    int vidas;
+    QList<QGraphicsPixmapItem*> corazones;
+
 
 
 
@@ -29,6 +35,11 @@ public:
     void actualizarFisica() override;
     void activarVisibilidadTemporal(int milisegundos);
     bool estaVisible() const;
+    void actualizarBarraEnergia();
+    void recibirDanio();
+    void reiniciarEstado();
+    void inicializarCorazones();
+    void actualizarCorazones();
 };
 
 #endif // HOMBREINVISIBLE_H

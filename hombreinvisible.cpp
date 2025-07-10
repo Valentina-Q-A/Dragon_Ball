@@ -6,6 +6,9 @@
 
 #include <QGraphicsScene>
 
+#include <QMessageBox>
+#include <QApplication>
+
 HombreInvisible::HombreInvisible(float x, float y)
     : Enemigo(x, y, new MovimientoOscilatorio(x, 50, 0.05)), visible(false) {
 
@@ -52,6 +55,15 @@ HombreInvisible::HombreInvisible(float x, float y)
     setFlag(QGraphicsItem::ItemIsMovable, false);
     // Inicialmente invisible
     //setVisible(false);
+    energiaMaxima = 100;
+    energia = energiaMaxima;
+    vidas = 3;
+
+    barraEnergia = new QGraphicsRectItem(0, 0, 100, 10);
+    barraEnergia->setBrush(Qt::green);
+    barraEnergia->setZValue(1);
+    barraEnergia->setParentItem(this);
+    barraEnergia->setPos(10, -15);
 }
 
 HombreInvisible::~HombreInvisible() {
@@ -106,3 +118,73 @@ void HombreInvisible::activarVisibilidadTemporal(int milisegundos) {
 bool HombreInvisible::estaVisible() const {
     return visible;
 }
+
+void HombreInvisible::actualizarBarraEnergia() {
+    float porcentaje = static_cast<float>(energia) / energiaMaxima;
+    barraEnergia->setRect(0, 0, 100 * porcentaje, 10);
+
+    if (porcentaje > 0.6)
+        barraEnergia->setBrush(Qt::green);
+    else if (porcentaje > 0.3)
+        barraEnergia->setBrush(Qt::yellow);
+    else
+        barraEnergia->setBrush(Qt::red);
+}
+
+
+void HombreInvisible::recibirDanio() {
+    energia -= 20;
+    if (energia < 0) energia = 0;
+    actualizarBarraEnergia();
+
+    if (energia == 0) {
+        vidas--;
+        actualizarCorazones();
+        if (vidas > 0) {
+            energia = energiaMaxima;
+            actualizarBarraEnergia();
+        } else {
+            // Mostrar ventana de victoria
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("¡Victoria!");
+            msgBox.setText("Has derrotado al enemigo.\n¿Deseas salir o pasar al Nivel 2?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setButtonText(QMessageBox::Yes, "Salir");
+            msgBox.setButtonText(QMessageBox::No, "Nivel 2");
+            int result = msgBox.exec();
+
+            if (result == QMessageBox::Yes) {
+                QApplication::quit();
+            } else {
+                // Aquí iría la lógica para cargar Nivel 2
+                qDebug() << "Cargar Nivel 2 (a implementar)";
+            }
+        }
+    }
+}
+
+void HombreInvisible::inicializarCorazones() {
+    for (int i = 0; i < 3; ++i) {
+        QGraphicsPixmapItem* corazon = new QGraphicsPixmapItem(QPixmap(":/images/corazon.png").scaled(25, 25));
+        corazon->setZValue(2);
+        scene()->addItem(corazon);
+        corazon->setPos(700 + i * 30, 10);  // parte superior derecha
+        corazones.append(corazon);
+    }
+}
+
+void HombreInvisible::actualizarCorazones() {
+    for (int i = 0; i < corazones.size(); ++i) {
+        corazones[i]->setVisible(i < vidas);
+    }
+}
+
+void HombreInvisible::reiniciarEstado() {
+    vidas = 3;
+    energia = energiaMaxima;
+    actualizarBarraEnergia();
+    actualizarCorazones();
+    setPos(400, 300);
+    setVisible(true);
+}
+
