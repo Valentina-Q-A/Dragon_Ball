@@ -32,11 +32,12 @@ void Poder::mover() {
     for (QGraphicsItem* item : colisiones) {
         HombreInvisible* enemigo = dynamic_cast<HombreInvisible*>(item);
         if (enemigo && enemigo->estaVisible()) {
-            enemigo->setVisible(false);
+            enemigo->recibirDanio();
             escenaRef->removeItem(this);
             deleteLater();
             return;
         }
+
     }
 
     // Opcional: eliminar si se sale del mapa
