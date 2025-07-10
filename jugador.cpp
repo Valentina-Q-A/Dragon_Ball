@@ -9,6 +9,10 @@
 #include "../niveles/nivel1.h"
 #include "poder.h"
 
+
+#include <QMessageBox>
+#include <QApplication>
+
 extern Nivel1* nivelGlobal; // Si es global, o buscás la escena de otra forma
 
 
@@ -54,8 +58,15 @@ Jugador::Jugador(QObject *parent)
         }
         timerDanio->stop();
     });
+    energiaMaxima = 100;
+    energia = energiaMaxima;
+    vidas = 3;
 
-
+    barraEnergia = new QGraphicsRectItem(0, 0, 100, 10);
+    barraEnergia->setBrush(Qt::green);
+    barraEnergia->setZValue(1);
+    barraEnergia->setParentItem(this);
+    barraEnergia->setPos(0, -15);  // encima del personaje
 }
 
 void Jugador::moverIzquierda() {
@@ -165,16 +176,47 @@ void Jugador::recibirDanio(int cantidad) {
 }
 
 void Jugador::recibirGolpe() {
+    energia -= 20;
+    if (energia < 0) energia = 0;
+
     setPixmap(frameRecibirDanio.scaled(120, 120));
-    timerDanio->start(300);  // Volver al sprite normal después
+    timerDanio->start(300);
+    actualizarBarraEnergia();
+
+    if (energia == 0) {
+        vidas--;
+        actualizarCorazones();
+        if (vidas > 0) {
+            // Reiniciar energía
+            energia = energiaMaxima;
+            actualizarBarraEnergia();
+        } else {
+            // Mostrar mensaje de fin de juego
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("¡Game Over!");
+            msgBox.setText("Te has quedado sin vidas.\n¿Deseas reiniciar el juego o salir?");
+            msgBox.setStandardButtons(QMessageBox::Retry | QMessageBox::Close);
+            int result = msgBox.exec();
+
+            if (result == QMessageBox::Retry) {
+                reiniciarEstado();
+                actualizarBarraEnergia();
+            } else {
+                QApplication::quit();
+            }
+        }
+    }
 }
 
 
 void Jugador::reiniciarEstado() {
     vidas = 3;
-    energia = 100;
+    energia = energiaMaxima;
     golpesAcertados = 0;
     setPos(100, 300);
+    actualizarBarraEnergia();
+    actualizarCorazones();
+
 }
 
 void Jugador::keyPressEvent(QKeyEvent *event) {
@@ -221,3 +263,34 @@ void Jugador::setEnSalto(bool valor) {
         break;
     }
 }*/
+
+
+void Jugador::actualizarBarraEnergia() {
+    float porcentaje = static_cast<float>(energia) / energiaMaxima;
+    barraEnergia->setRect(0, 0, 100 * porcentaje, 10);
+
+    if (porcentaje > 0.6)
+        barraEnergia->setBrush(Qt::green);
+    else if (porcentaje > 0.3)
+        barraEnergia->setBrush(Qt::yellow);
+    else
+        barraEnergia->setBrush(Qt::red);
+}
+
+
+void Jugador::inicializarCorazones() {
+    if (!scene()) return;
+    for (int i = 0; i < 3; ++i) {
+        QGraphicsPixmapItem* corazon = new QGraphicsPixmapItem(QPixmap(":/images/corazon.png").scaled(30, 30));
+        corazon->setZValue(2);
+        corazon->setPos(10 + i * 35, 10);  // separados y ubicados arriba a la izquierda
+        scene()->addItem(corazon);
+        corazones.append(corazon);
+    }
+}
+
+void Jugador::actualizarCorazones() {
+    for (int i = 0; i < corazones.size(); ++i) {
+        corazones[i]->setVisible(i < vidas);
+    }
+}

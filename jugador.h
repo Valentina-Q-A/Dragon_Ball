@@ -34,7 +34,9 @@ public:
     Direccion ultimaDireccion;
 
     void recibirGolpe();  // nuevo método
-
+    void actualizarBarraEnergia();
+    void inicializarCorazones();
+    void actualizarCorazones();
 
 
     //void keyReleaseEvent(QKeyEvent *event);
@@ -45,6 +47,7 @@ private:
     int vidas;
     int energia;
     int golpesAcertados;
+    int energiaMaxima;
     QPointF posicion;
     //float velocidad;
     bool enSalto;
@@ -61,9 +64,9 @@ private:
 
     QTimer* timerAtaque;
     QTimer* timerDanio;
-
-
     SaltoParabolico *salto;
+    QGraphicsRectItem* barraEnergia;
+    QList<QGraphicsPixmapItem*> corazones;
 };
 
 #endif // JUGADOR_H
