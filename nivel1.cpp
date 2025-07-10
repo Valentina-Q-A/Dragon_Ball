@@ -25,9 +25,12 @@ Nivel1::Nivel1(QGraphicsView* vista)
     jugador->setPos(100, 400);
     escena->addItem(jugador);
 
+    jugador->inicializarCorazones();
+
     // Enemigo invisible
     enemigo = new HombreInvisible(500, 400);
     escena->addItem(enemigo);
+    enemigo->inicializarCorazones();
 
     // Movimiento oscilatorio
     temporizadorMovimiento = new QTimer(this);
@@ -40,6 +43,7 @@ Nivel1::Nivel1(QGraphicsView* vista)
     connect(temporizadorVisibilidad, &QTimer::timeout, [this]() {
         enemigo->activarVisibilidadTemporal(1000);
     });
+
 
 }
 
