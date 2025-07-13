@@ -28,7 +28,9 @@ Nivel1::Nivel1(QGraphicsView* vista)
     jugador->inicializarCorazones();
 
     // Enemigo invisible
-    enemigo = new HombreInvisible(500, 400);
+    //enemigo = new HombreInvisible(500, 400);
+    enemigo = new HombreInvisible(400, 300, vista);
+
     escena->addItem(enemigo);
     enemigo->inicializarCorazones();
 
