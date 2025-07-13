@@ -8,9 +8,11 @@
 
 #include <QMessageBox>
 #include <QApplication>
+#include "../niveles/nivel2.h"
 
-HombreInvisible::HombreInvisible(float x, float y)
-    : Enemigo(x, y, new MovimientoOscilatorio(x, 50, 0.05)), visible(false) {
+
+HombreInvisible::HombreInvisible(float x, float y, QGraphicsView* vista)
+    : Enemigo(x, y, new MovimientoOscilatorio(x, 50, 0.05)), visible(false), vista(vista) {
 
     //Direcciones aleatorias
     direccionX = (rand() % 3) - 1; // -1, 0, 1
@@ -158,6 +160,9 @@ void HombreInvisible::recibirDanio() {
             } else {
                 // Aquí iría la lógica para cargar Nivel 2
                 qDebug() << "Cargar Nivel 2 (a implementar)";
+                vista->scene()->clear();  // Limpia nivel 1
+                Nivel2* nivel2 = new Nivel2(vista);
+                nivel2->iniciar();
             }
         }
     }

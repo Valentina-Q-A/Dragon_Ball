@@ -5,6 +5,9 @@
 #include <QTimer>
 #include <QObject>
 #include <QPixmap>
+#include <QGraphicsView>
+
+class Nivel2;  // Adelanto de declaración
 
 class HombreInvisible : public Enemigo {
     Q_OBJECT
@@ -23,12 +26,13 @@ private:
     int energiaMaxima;
     int vidas;
     QList<QGraphicsPixmapItem*> corazones;
+    QGraphicsView* vista;
 
 
 
 
 public:
-    HombreInvisible(float x, float y);
+    HombreInvisible(float x, float y, QGraphicsView* vista);
     ~HombreInvisible();
 
     void mover() override;
