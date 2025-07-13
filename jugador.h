@@ -37,7 +37,7 @@ public:
     void actualizarBarraEnergia();
     void inicializarCorazones();
     void actualizarCorazones();
-
+    void limitarPosicion();
 
     //void keyReleaseEvent(QKeyEvent *event);
 

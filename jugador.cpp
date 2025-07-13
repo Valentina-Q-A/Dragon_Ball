@@ -21,6 +21,9 @@ Jugador::Jugador(QObject *parent)
 
     QPixmap spriteSheet(":/images/goku.png");
 
+    if (spriteSheet.isNull()) {
+        qDebug() << "No se pudo cargar el spriteSheet de Goku";
+    }
     // Coordenadas de ejemplo: ajustalas según tu sprite
     frameDerecha   = spriteSheet.copy(  345,  0, 345, 547);
     frameIzquierda = spriteSheet.copy( 345,  547, 345, 547);
@@ -32,6 +35,8 @@ Jugador::Jugador(QObject *parent)
     frameRecibirDanio = spriteSheet.copy(  0,  0, 380, 547);
 
     setPixmap(frameDerecha.scaled(120, 120));
+
+
     setPos(100, 300);
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
@@ -74,6 +79,7 @@ void Jugador::moverIzquierda() {
     ultimaDireccion = Izquierda;
     setPixmap(frameIzquierda.scaled(120, 120));
     movimientoActivo = true;
+    limitarPosicion();
 
 }
 
@@ -82,6 +88,7 @@ void Jugador::moverDerecha() {
     ultimaDireccion = Derecha;
     setPixmap(frameDerecha.scaled(120, 120));
     movimientoActivo = true;
+    limitarPosicion();
 
 }
 
@@ -90,6 +97,7 @@ void Jugador::moverArriba() {
     ultimaDireccion = Arriba;
     setPixmap(frameArriba.scaled(120, 120));
     movimientoActivo = true;
+    limitarPosicion();
 
 }
 
@@ -98,6 +106,7 @@ void Jugador::moverAbajo() {
     ultimaDireccion = Abajo;
     setPixmap(frameAbajo.scaled(120, 120));
     movimientoActivo = true;
+    limitarPosicion();
 
 }
 
@@ -180,6 +189,7 @@ void Jugador::recibirGolpe() {
     if (energia < 0) energia = 0;
 
     setPixmap(frameRecibirDanio.scaled(120, 120));
+
     timerDanio->start(300);
     actualizarBarraEnergia();
 
@@ -293,4 +303,15 @@ void Jugador::actualizarCorazones() {
     for (int i = 0; i < corazones.size(); ++i) {
         corazones[i]->setVisible(i < vidas);
     }
+}
+
+
+void Jugador::limitarPosicion() {
+    int anchoSprite = 120;
+    int altoSprite = 120;
+
+    float nuevaX = qBound(0.0f, x(), 800.0f - anchoSprite);
+    float nuevaY = qBound(350.0f, y(), 600.0f - altoSprite);
+
+    setPos(nuevaX, nuevaY);
 }
