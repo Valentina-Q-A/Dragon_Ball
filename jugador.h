@@ -25,10 +25,8 @@ public:
     void atacar();
     void recibirDanio(int cantidad);
     void reiniciarEstado();
-    //ESTABA BIEN SIN FISICAS
     bool movimientoActivo;
     void setEnSalto(bool estado);
-    //float getVelocidad() const;
 
     enum Direccion { Abajo, Izquierda, Derecha, Arriba };
     Direccion ultimaDireccion;
@@ -38,8 +36,13 @@ public:
     void inicializarCorazones();
     void actualizarCorazones();
     void limitarPosicion();
+    bool estaEnNivel2 = false;
+    Direccion getUltimaDireccion() const { return ultimaDireccion; }
+    QRectF areaSegura;
 
-    //void keyReleaseEvent(QKeyEvent *event);
+    void setAreaSegura(const QRectF& area) { areaSegura = area; }
+    void verificarCaida();
+
 
 
 
@@ -49,7 +52,6 @@ private:
     int golpesAcertados;
     int energiaMaxima;
     QPointF posicion;
-    //float velocidad;
     bool enSalto;
     // Sprites
     QPixmap frameArriba;
@@ -67,6 +69,7 @@ private:
     SaltoParabolico *salto;
     QGraphicsRectItem* barraEnergia;
     QList<QGraphicsPixmapItem*> corazones;
+    SaltoParabolico* saltoParabolico;
 };
 
 #endif // JUGADOR_H

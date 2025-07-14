@@ -3,58 +3,53 @@
 #include <QGraphicsScene>
 #include <QKeyEvent>
 #include "hombreinvisible.h"
-
 #include "../fisicas/SaltoParabolico.h"
-
 #include "../niveles/nivel1.h"
 #include "poder.h"
-
-
+#include "hombreenmascarado.h"
 #include <QMessageBox>
 #include <QApplication>
+#include <stdexcept>
 
-extern Nivel1* nivelGlobal; // Si es global, o buscás la escena de otra forma
+
+extern Nivel1* nivelGlobal;
 
 
 Jugador::Jugador(QObject *parent)
     : QObject(parent), vidas(3), energia(100), golpesAcertados(0), enSalto(false), ultimaDireccion(Abajo) {
-
     QPixmap spriteSheet(":/images/goku.png");
-
     if (spriteSheet.isNull()) {
-        qDebug() << "No se pudo cargar el spriteSheet de Goku";
+        throw std::runtime_error("No se pudo cargar el spriteSheet de Goku");
     }
-    // Coordenadas de ejemplo: ajustalas según tu sprite
-    frameDerecha   = spriteSheet.copy(  345,  0, 345, 547);
-    frameIzquierda = spriteSheet.copy( 345,  547, 345, 547);
-    frameArriba   = spriteSheet.copy(  345,  1094, 345, 547);
-    frameAbajo   = spriteSheet.copy(  0,  0, 380, 547);
-    frameAtaqueDerecha   = spriteSheet.copy(  0,  0, 380, 547);
-    frameAtaqueIzquierda   = spriteSheet.copy(  0,  0, 380, 547);
-    frameAtaqueAbajo   = spriteSheet.copy(  0,  0, 380, 547);
-    frameRecibirDanio = spriteSheet.copy(  0,  0, 380, 547);
+
+    frameDerecha   = spriteSheet.copy(  370,  0, 310, 547);
+    frameIzquierda = spriteSheet.copy( 370,  500, 345, 547);
+    frameArriba   = spriteSheet.copy(  370,  1094, 345, 450);
+    frameAbajo   = spriteSheet.copy(  0,  1094, 345, 450);
+    frameAtaqueDerecha   = spriteSheet.copy(  715,  1094, 390, 480);
+    frameAtaqueIzquierda   = spriteSheet.copy(  1110,  500, 380, 547);
+    frameAtaqueAbajo   = spriteSheet.copy(  0,  1094, 345, 450);
+    frameRecibirDanio = spriteSheet.copy(  0,  1600, 380, 547);
 
     setPixmap(frameDerecha.scaled(120, 120));
-
-
     setPos(100, 300);
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
     // Inicializar física de salto
-    //salto = new SaltoParabolico(25.2f, 9.8f, 1.2f);  // v0, g, duración máxima
-    salto = new SaltoParabolico(40.0f, 40.0f, 0.5f);  // v0, g, duración
+    float velocidadInicial = 180.0f;
+    float gravedad = 250.0f;
+    float duracion = 2.0f;
+    saltoParabolico = new SaltoParabolico(velocidadInicial, gravedad, duracion);
 
-    frameAtaque = QPixmap(":/images/goku_ataque.png"); // ← agregá este sprite a tu proyecto
     timerAtaque = new QTimer(this);
     connect(timerAtaque, &QTimer::timeout, [this]() {
-        setPixmap(frameDerecha.scaled(120, 120)); // ← o la última dirección que corresponda
+        setPixmap(frameDerecha.scaled(120, 120));
         timerAtaque->stop();
     });
 
-    frameRecibirDanio = QPixmap(":/images/goku_danio.png");  // Sprite ya cargado
     timerDanio = new QTimer(this);
     connect(timerDanio, &QTimer::timeout, [this]() {
-        // Restaurar sprite según dirección
+        // Restaurar sprite según la dirección
         switch (ultimaDireccion) {
         case Derecha:  setPixmap(frameDerecha.scaled(120, 120)); break;
         case Izquierda:setPixmap(frameIzquierda.scaled(120, 120)); break;
@@ -114,12 +109,12 @@ void Jugador::saltar() {
     movimientoActivo = false;
     if (!enSalto) {
         enSalto = true;
-        salto->aplicar(this);  // se libera automáticamente al aterrizar
+        saltoParabolico->aplicar(this);  // se libera automáticamente al aterrizar
     }
 }
 
 void Jugador::atacar() {
-    // 1. Cambiar sprite según dirección
+    // Cambia sprite según dirección
     switch (ultimaDireccion) {
     case Derecha:
         setPixmap(frameAtaqueDerecha.scaled(120, 120));
@@ -135,10 +130,10 @@ void Jugador::atacar() {
         break;
     }
 
-    // 2. Volver al sprite normal luego de 300 ms
+    // Volver al sprite normal luego de 300 ms
     timerAtaque->start(300);
 
-    // 3. Determinar dirección del ataque
+    // Determina dirección del ataque
     QPointF origen = this->pos();
     QPointF destino;
     HombreInvisible* objetivo = nullptr;
@@ -153,9 +148,9 @@ void Jugador::atacar() {
     }
 
     if (objetivo) {
-        destino = objetivo->pos(); // Apunta al enemigo si está visible
+        destino = objetivo->pos(); // apunta al enemigo si está visible
     } else {
-        // Si no hay enemigo visible, lanzar en la dirección de Goku
+        // Si no hay enemigo visible, lanza en la dirección de Goku
         float offset = 100.0f;  // Distancia fija
         switch (ultimaDireccion) {
         case Derecha:
@@ -173,10 +168,25 @@ void Jugador::atacar() {
         }
     }
 
-    // 4. Lanzar el poder
+    // Lanzar el poder
     Poder* poder = new Poder(origen, destino, 10.0f, scene());
+    // Empuja si se trata del HombreEnmascarado
+    if (estaEnNivel2) {
+        // aplicar empuje si colisiona con HombreEnmascarado
+        QList<QGraphicsItem*> colisiones = collidingItems();
+        for (QGraphicsItem* item : colisiones) {
+            if (HombreEnmascarado* enemigo = dynamic_cast<HombreEnmascarado*>(item)) {
+                qreal direccion = (x() < enemigo->pos().x()) ? 20.0 : -20.0;
+                enemigo->moveBy(direccion, 0);
+                enemigo->recibirDanio();
+                enemigo->setOpacity(0.6);
+                QTimer::singleShot(150, enemigo, [enemigo]() {
+                    enemigo->setOpacity(1.0);
+                });
+            }
+        }
+    }
 }
-
 
 
 void Jugador::recibirDanio(int cantidad) {
@@ -188,7 +198,7 @@ void Jugador::recibirGolpe() {
     energia -= 20;
     if (energia < 0) energia = 0;
 
-    setPixmap(frameRecibirDanio.scaled(120, 120));
+    setPixmap(frameDerecha.scaled(120, 120));
 
     timerDanio->start(300);
     actualizarBarraEnergia();
@@ -201,7 +211,7 @@ void Jugador::recibirGolpe() {
             energia = energiaMaxima;
             actualizarBarraEnergia();
         } else {
-            // Mostrar mensaje de fin de juego
+            // Mostrar mensaje de fin del juego
             QMessageBox msgBox;
             msgBox.setWindowTitle("¡Game Over!");
             msgBox.setText("Te has quedado sin vidas.\n¿Deseas reiniciar el juego o salir?");
@@ -230,8 +240,7 @@ void Jugador::reiniciarEstado() {
 }
 
 void Jugador::keyPressEvent(QKeyEvent *event) {
-    qDebug() << "Jugador recibió tecla:" << event->key();  // ← DEBUG CRÍTICO
-    //if (event->isAutoRepeat()) return;  // Ignora repeticiones
+    qDebug() << "Jugador recibió tecla:" << event->key();
     switch (event->key()) {
     case Qt::Key_Left:
         moverIzquierda();
@@ -258,23 +267,6 @@ void Jugador::setEnSalto(bool valor) {
     enSalto = valor;
 }
 
-
-
-/*float Jugador::getVelocidad() const {
-    return velocidad;
-}*/
-
-/*void Jugador::keyReleaseEvent(QKeyEvent *event) {
-    if (event->isAutoRepeat()) return;  // Ignora repeticiones
-    switch (event->key()) {
-    case Qt::Key_Left:
-    case Qt::Key_Right:
-        movimientoActivo = false;
-        break;
-    }
-}*/
-
-
 void Jugador::actualizarBarraEnergia() {
     float porcentaje = static_cast<float>(energia) / energiaMaxima;
     barraEnergia->setRect(0, 0, 100 * porcentaje, 10);
@@ -293,7 +285,7 @@ void Jugador::inicializarCorazones() {
     for (int i = 0; i < 3; ++i) {
         QGraphicsPixmapItem* corazon = new QGraphicsPixmapItem(QPixmap(":/images/corazon.png").scaled(30, 30));
         corazon->setZValue(2);
-        corazon->setPos(10 + i * 35, 10);  // separados y ubicados arriba a la izquierda
+        corazon->setPos(10 + i * 35, 10);  // separados de los otros y ubicados arriba a la izquierda
         scene()->addItem(corazon);
         corazones.append(corazon);
     }
@@ -310,8 +302,37 @@ void Jugador::limitarPosicion() {
     int anchoSprite = 120;
     int altoSprite = 120;
 
-    float nuevaX = qBound(0.0f, x(), 800.0f - anchoSprite);
-    float nuevaY = qBound(350.0f, y(), 600.0f - altoSprite);
+    float nuevaX;
+    float nuevaY;
+
+    if (estaEnNivel2) {
+        // Límites para la plataforma flotante (para nivel 2)
+        QRectF limite(100, 100, 650, 400);
+
+        nuevaX = qBound(limite.left(), x(), limite.right() - anchoSprite);
+        nuevaY = qBound(limite.top(), y(), limite.bottom() - altoSprite);
+    } else {
+        // Límites del Nivel 1
+        nuevaX = qBound(0.0f, x(), 800.0f - anchoSprite);
+        nuevaY = qBound(350.0f, y(), 600.0f - altoSprite);
+    }
 
     setPos(nuevaX, nuevaY);
 }
+
+
+void Jugador::verificarCaida() {
+    if (estaEnNivel2 && !areaSegura.contains(pos())) {
+        qDebug() << "¡Goku cayó de la plataforma!";
+        vidas--;
+        actualizarCorazones();
+
+        if (vidas <= 0) {
+            QMessageBox::information(nullptr, "Derrota", "Goku cayó fuera de la plataforma. ¡Has perdido!");
+            QApplication::quit();
+        } else {
+            setPos(400, 300);  // posición segura dentro de la plataforma
+        }
+    }
+}
+
