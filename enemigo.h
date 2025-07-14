@@ -19,7 +19,6 @@ public:
 
     virtual void mover() = 0;
     virtual void actualizarFisica() = 0;
-    //virtual void dibujar(QPainter* painter) = 0;
 
     // Métodos comunes
     void setPosicion(float x, float y);
