@@ -16,10 +16,7 @@ private:
     HombreInvisible* enemigo;
     QTimer* temporizadorMovimiento;
     QTimer* temporizadorVisibilidad;
-    //QTimer* temporizadorJugador;
     Jugador* jugador;
-
-
 
 public:
     Nivel1(QGraphicsView* vista);
@@ -27,6 +24,7 @@ public:
     Jugador* getJugador() const;
 
     void iniciar();
+    void limpiar();
 };
 
 #endif // NIVEL1_H
