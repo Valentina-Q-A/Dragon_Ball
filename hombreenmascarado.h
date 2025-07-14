@@ -18,6 +18,11 @@ public:
     void actualizarCorazones();
     void recibirDanio();
     void reiniciarEstado();
+    QRectF areaSegura;
+
+    void setAreaSegura(const QRectF& area) { areaSegura = area; }
+    void verificarCaida();
+
 
 private:
     QPixmap frameDerecha;
