@@ -5,7 +5,7 @@
 #include <QGraphicsScene>
 #include "../personajes/Jugador.h"
 #include "../niveles/nivel1.h"
-#include "../niveles/nivel2.h"  // ← NUEVO
+#include "../niveles/nivel2.h"
 
 class Game : public QGraphicsView {
     Q_OBJECT
@@ -15,13 +15,13 @@ public:
     void keyPressEvent(QKeyEvent* event) override;
 
 public slots:
-    void cambiarANivel2();  // ← NUEVO
+    void cambiarANivel2();
 
 private:
     QGraphicsScene *scene;
     Jugador *jugador;
     Nivel1* nivel1;
-    Nivel2* nivel2 = nullptr;  // ← NUEVO
+    Nivel2* nivel2 = nullptr;
 };
 
 #endif // GAME_H
