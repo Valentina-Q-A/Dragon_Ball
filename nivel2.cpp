@@ -15,8 +15,8 @@ Nivel2::Nivel2(QGraphicsView* vista)
     vista->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vista->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    // Fondo (temporal o definitivo)
-    QPixmap fondo(":/images/fondo_nivel2.png");  // ← agregalo al .qrc
+    // Fondo
+    QPixmap fondo(":/images/fondo_nivel2.png");
     if (fondo.isNull()) {
         qDebug() << "No se pudo cargar fondo_nivel2.png";
     }
@@ -38,6 +38,14 @@ Nivel2::Nivel2(QGraphicsView* vista)
     // Físicas y colisiones
     temporizadorFisicas = new QTimer(this);
     temporizadorColisiones = new QTimer(this);
+
+    // Plataforma
+    QRectF areaPlataforma(160, 100, 500, 350);  // para cubrir casi hasta la base
+    //escena->addRect(areaPlataforma, QPen(Qt::red));  // Dibuja el área de la plataforma
+
+    jugador->setAreaSegura(areaPlataforma);
+    enemigo->setAreaSegura(areaPlataforma);
+
 }
 
 Nivel2::~Nivel2() {
@@ -50,9 +58,13 @@ void Nivel2::iniciar() {
         enemigo->mover();
     });
     temporizadorFisicas->start(30);  // velocidad de refresco
+    jugador->estaEnNivel2 = true;
 
-    // Futuro: detección de colisiones, físicas avanzadas, etc.
-
+    connect(temporizadorColisiones, &QTimer::timeout, [this]() {
+        jugador->verificarCaida();
+        enemigo->verificarCaida();
+    });
+    temporizadorColisiones->start(30);
 }
 
 Jugador* Nivel2::getJugador() const {
