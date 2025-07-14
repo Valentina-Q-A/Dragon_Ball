@@ -7,7 +7,7 @@
 #include <QPixmap>
 #include <QGraphicsView>
 
-class Nivel2;  // Adelanto de declaración
+class Nivel2;  // Declaración adelantada
 
 class HombreInvisible : public Enemigo {
     Q_OBJECT
@@ -18,7 +18,6 @@ private:
     QPixmap frameDerecha;
     QPixmap frameIzquierda;
 
-    //Atributos movimiento libre
     int direccionX;
     int direccionY;
     QGraphicsRectItem* barraEnergia;
@@ -27,9 +26,6 @@ private:
     int vidas;
     QList<QGraphicsPixmapItem*> corazones;
     QGraphicsView* vista;
-
-
-
 
 public:
     HombreInvisible(float x, float y, QGraphicsView* vista);
@@ -44,7 +40,9 @@ public:
     void reiniciarEstado();
     void inicializarCorazones();
     void actualizarCorazones();
+
+signals:
+    void nivelCompletado();  // ← NUEVO
 };
 
 #endif // HOMBREINVISIBLE_H
-
