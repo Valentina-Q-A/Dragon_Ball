@@ -24,19 +24,18 @@ void SaltoParabolico::aplicar(Jugador* j) {
     switch (jugador->getUltimaDireccion()) {
     case Jugador::Izquierda: dirX = -1; break;
     case Jugador::Derecha:   dirX =  1; break;
-    default: dirX = 0; break; // Si estaba mirando arriba o abajo, sin movimiento horizontal
+    default: dirX = 0; break;
     }
 
     // Fijar velocidades iniciales
-    float v_horizontal = 80.0f;       // píxeles por segundo (ajustable)
-    float v_vertical = intensidadBase; // intensidadBase ya es la vertical
+    float v_horizontal = 80.0f;       // píxeles por segundo
+    float v_vertical = intensidadBase;
 
     velocidad = QVector2D(dirX * v_horizontal, -v_vertical);  // Ojo: negativo porque va hacia arriba
 
 
     // Inicializar vectores físicos
     posicion = QVector2D(jugador->x(), jugador->y());
-    //velocidad = QVector2D(dirX * 6.5f, -intensidadBase);  // Negativo porque sube
     aceleracion = QVector2D(0, gravedad); // Aceleración hacia abajo
 
 
@@ -49,7 +48,6 @@ void SaltoParabolico::aplicar(Jugador* j) {
 
 void SaltoParabolico::actualizarSalto() {
     tiempo += dt;
-
     // Integración tipo Euler
     velocidad += aceleracion * dt;
     posicion += velocidad * dt;

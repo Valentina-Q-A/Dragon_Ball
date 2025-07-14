@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QVector2D>
 
-class Jugador; // Forward declaration
+class Jugador;
 
 class SaltoParabolico : public QObject, public Fisica {
     Q_OBJECT
